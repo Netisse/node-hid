@@ -211,6 +211,11 @@ For FEATURE reports:
 var buf = await device.getFeatureReport(reportId, reportLength)
 ```
 
+Some devices require an explicit INPUT report request. To receive surch INPUT reports, use `await device.getInputReport()`:
+```js
+var buf = await device.getInputReport(reportId, reportLength)
+```
+
 
 Notes:
 - Reads via `device.on("data")` are asynchronous
@@ -351,6 +356,10 @@ For FEATURE reports:
 var buf = device.getFeatureReport(reportId, reportLength)
 ```
 
+Some devices require an explicit INPUT report request. To receive surch INPUT reports, use `await device.getInputReport()`:
+```js
+var buf = await device.getInputReport(reportId, reportLength)
+```
 
 Notes:
 - Reads via `device.on("data")` are asynchronous
@@ -452,6 +461,11 @@ be automatically called.
 - `report_id` - HID feature report id to get
 - `report_length` - length of report
 
+### `device.getInputReport(report_id, report_length)`
+
+- `report_id` - HID feature report id to get
+- `report_length` - length of report
+
 ### `device.setNonBlocking(no_block)`
 
 - `no_block` - boolean. Set to `true` to enable non-blocking reads
@@ -533,6 +547,11 @@ be automatically called.
 - Returns number of bytes actually written
 
 ### `device.getFeatureReport(report_id, report_length)`
+
+- `report_id` - HID feature report id to get
+- `report_length` - length of report
+
+### `device.getInputReport(report_id, report_length)`
 
 - `report_id` - HID feature report id to get
 - `report_length` - length of report

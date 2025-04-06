@@ -29,6 +29,7 @@ export class HID extends EventEmitter {
     readSync(): number[]
     readTimeout(time_out: number): number[]
     sendFeatureReport(data: number[] | Buffer): number
+    getInputReport(report_id: number, report_length: number): number[]
     getFeatureReport(report_id: number, report_length: number): number[]
     resume(): void
     write(values: number[] | Buffer): number
@@ -52,6 +53,7 @@ export class HIDAsync extends EventEmitter {
     read(time_out?: number | undefined): Promise<Buffer | undefined>
     sendFeatureReport(data: number[] | Buffer): Promise<number>
     getFeatureReport(report_id: number, report_length: number): Promise<Buffer>
+    getInputReport(report_id: number, report_length: number): Promise<Buffer>
     resume(): void
     write(values: number[] | Buffer): Promise<number>
     setNonBlocking(no_block: boolean): Promise<void>

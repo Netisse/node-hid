@@ -19,6 +19,7 @@ private:
     Napi::Value read(const Napi::CallbackInfo &info);
     Napi::Value write(const Napi::CallbackInfo &info);
     Napi::Value setNonBlocking(const Napi::CallbackInfo &info);
+    Napi::Value getInputReport(const Napi::CallbackInfo &info);
     Napi::Value getFeatureReport(const Napi::CallbackInfo &info);
     Napi::Value sendFeatureReport(const Napi::CallbackInfo &info);
     Napi::Value readSync(const Napi::CallbackInfo &info);

@@ -220,6 +220,42 @@ Napi::Value HID::readTimeout(const Napi::CallbackInfo &info)
   return retval;
 }
 
+Napi::Value HID::getInputReport(const Napi::CallbackInfo &info)
+{
+  Napi::Env env = info.Env();
+
+  if (info.Length() != 2 || !info[0].IsNumber() || !info[1].IsNumber())
+  {
+    Napi::TypeError::New(env, "need report ID and length parameters in getInputReport").ThrowAsJavaScriptException();
+    return env.Null();
+  }
+
+  const uint8_t reportId = info[0].As<Napi::Number>().Uint32Value();
+  const int bufSize = info[1].As<Napi::Number>().Uint32Value();
+  if (bufSize == 0)
+  {
+    Napi::TypeError::New(env, "Length parameter cannot be zero in getInputReport").ThrowAsJavaScriptException();
+    return env.Null();
+  }
+
+  std::vector<unsigned char> buf(bufSize);
+  buf[0] = reportId;
+
+  int returnedLength = hid_get_input_report(_hidHandle, buf.data(), bufSize);
+  if (returnedLength == -1)
+  {
+    Napi::TypeError::New(env, "could not get input report from device").ThrowAsJavaScriptException();
+    return env.Null();
+  }
+
+  Napi::Array retval = Napi::Array::New(env, returnedLength);
+  for (int i = 0; i < returnedLength; i++)
+  {
+    retval.Set(i, Napi::Number::New(env, buf[i]));
+  }
+  return retval;
+}
+
 Napi::Value HID::getFeatureReport(const Napi::CallbackInfo &info)
 {
   Napi::Env env = info.Env();

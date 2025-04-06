@@ -423,6 +423,84 @@ Napi::Value HIDAsync::read(const Napi::CallbackInfo &info)
   return (new ReadOnceWorker(env, _hidHandle, timeout))->QueueAndRun();
 }
 
+class GetInputReportWorker : public PromiseAsyncWorker<std::shared_ptr<DeviceContext>>
+{
+public:
+  GetInputReportWorker(
+      Napi::Env &env,
+      std::shared_ptr<DeviceContext> hid,
+      uint8_t reportId,
+      int bufSize)
+      : PromiseAsyncWorker(env, hid),
+        bufferLength(bufSize)
+  {
+    buffer = new unsigned char[bufSize];
+    buffer[0] = reportId;
+  }
+  ~GetInputReportWorker()
+  {
+    if (buffer)
+    {
+      delete[] buffer;
+    }
+  }
+
+  // This code will be executed on the worker thread. Note: Napi types cannot be used
+  void Execute() override
+  {
+    if (context->hid)
+    {
+      bufferLength = hid_get_input_report(context->hid, buffer, bufferLength);
+      if (bufferLength < 0)
+      {
+        SetError("could not get input report from device");
+      }
+    }
+    else
+    {
+      SetError("device has been closed");
+    }
+  }
+
+  Napi::Value GetPromiseResult(const Napi::Env &env) override
+  {
+    auto result = Napi::Buffer<unsigned char>::Copy(env, buffer, bufferLength);
+
+    return result;
+  }
+
+private:
+  unsigned char *buffer;
+  int bufferLength;
+};
+
+Napi::Value HIDAsync::getInputReport(const Napi::CallbackInfo &info)
+{
+  Napi::Env env = info.Env();
+
+  if (!_hidHandle || _hidHandle->is_closed)
+  {
+    Napi::TypeError::New(env, "device has been closed").ThrowAsJavaScriptException();
+    return env.Null();
+  }
+
+  if (info.Length() != 2 || !info[0].IsNumber() || !info[1].IsNumber())
+  {
+    Napi::TypeError::New(env, "need report ID and length parameters in getInputReport").ThrowAsJavaScriptException();
+    return env.Null();
+  }
+
+  const uint8_t reportId = info[0].As<Napi::Number>().Uint32Value();
+  const int bufSize = info[1].As<Napi::Number>().Uint32Value();
+  if (bufSize <= 0)
+  {
+    Napi::TypeError::New(env, "Length parameter cannot be zero in getInputReport").ThrowAsJavaScriptException();
+    return env.Null();
+  }
+
+  return (new GetInputReportWorker(env, _hidHandle, reportId, bufSize))->QueueAndRun();
+}
+
 class GetFeatureReportWorker : public PromiseAsyncWorker<std::shared_ptr<DeviceContext>>
 {
 public:
