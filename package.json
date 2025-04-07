@@ -18,7 +18,7 @@
     "test": "node src/test-ci.js",
     "showdevices": "node src/show-devices.js",
     "prepublishOnly": "git submodule update --init",
-    "install": "pkg-prebuilds-verify ./binding-options.js || node-gyp rebuild",
+    "install": "pkg-prebuilds-verify ./binding-options.js || (git submodule update --init && node-gyp rebuild)",
     "build": "node-gyp build",
     "rebuild": "node-gyp clean configure build",
     "clean": "rimraf build node_modules prebuilds package-lock.json",
